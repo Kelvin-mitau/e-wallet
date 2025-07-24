@@ -32,10 +32,12 @@ const Login = () => {
             if (response.ok) {
                 const data = await response.json();
                 setMessage('Login successful! Welcome back.');
-                navigate("/")
+                sessionStorage.setItem("authToken", data.token);
+                sessionStorage.setItem("userID", data.userID);
+                navigate("/dashboard")
             } else {
                 const errorData = await response.json();
-                setMessage(`Login failed: ${errorData.message || 'Invalid credentials'}`);
+                setMessage(`${errorData.message || 'Invalid credentials'}`);
                 console.error('Login Error:', errorData);
             }
         } catch (error) {
@@ -67,8 +69,9 @@ const Login = () => {
                 return;
             }
             setMessage('Login successful! Welcome back.');
-            localStorage.setItem("token", res.token);
-            navigate("/")
+            sessionStorage.setItem("authToken", res.token);
+            sessionStorage.setItem("userID", res.userID);
+            navigate("/dashboard")
         } catch (error) {
             setMessage('An error occurred. Please try again later.');
             console.error('Network Error:', error);
@@ -166,7 +169,7 @@ const Login = () => {
                 <GoogleButton handleGoogleSubmit={handleGoogleSubmit} handleGoogleSubmitError={handleGoogleSubmitError} />
 
                 <div className='mt-7'>
-                    <p>Don't have an account? <a href="/auth/signup" className='text-[#6f66c7] hover:underline hover:decoration-[#6f66c7] hover:decoration-1'>Sign Up</a></p>
+                    <p>Don't have an account? <a href="/signup" className='text-[#6f66c7] hover:underline hover:decoration-[#6f66c7] hover:decoration-1'>Sign Up</a></p>
                 </div>
             </div>
         </div>

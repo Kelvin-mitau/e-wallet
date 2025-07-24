@@ -41,8 +41,8 @@ const SignUp = () => {
                 navigate("/")
             } else {
                 const errorData = await response.json();
-                setMessage(`Login failed: ${errorData.message || 'Invalid credentials'}`);
-                console.error('Login Error:', errorData);
+                setMessage(`Sign up failed: ${errorData.message || 'Invalid credentials'}`);
+                console.error('Sign up Error:', errorData);
             }
         } catch (error) {
             setMessage('An error occurred. Please try again later.');
@@ -55,6 +55,7 @@ const SignUp = () => {
     const handleGoogleSubmit = async (credentialResponse: CredentialResponse) => {
         if (!credentialResponse.credential) {
             console.error('No credential received from Google');
+            setMessage('An error occurred. Please try again later.');
             return;
         }
         try {
@@ -72,9 +73,7 @@ const SignUp = () => {
                 setMessage(res.message)
                 return;
             }
-            setMessage('Login successful! Welcome back.');
-            localStorage.setItem("token", res.token);
-            navigate("/")
+            navigate("/");
         } catch (error) {
             setMessage('An error occurred. Please try again later.');
             console.error('Network Error:', error);
@@ -85,6 +84,7 @@ const SignUp = () => {
     };
 
     const handleGoogleSubmitError = () => {
+        setMessage('An error occurred. Please try again later.');
         console.error('Google Login Failed');
     };
 
@@ -218,7 +218,7 @@ const SignUp = () => {
                 <GoogleButton handleGoogleSubmit={handleGoogleSubmit} handleGoogleSubmitError={handleGoogleSubmitError} />
 
                 <div className='mt-7'>
-                    <p>Already have an account? <a href="/auth/signin" className='text-[#6f66c7] hover:underline hover:decoration-[#6f66c7] hover:decoration-1'>Sign In</a></p>
+                    <p>Already have an account? <a href="/" className='text-[#6f66c7] hover:underline hover:decoration-[#6f66c7] hover:decoration-1'>Sign In</a></p>
                 </div>
             </div>
         </div>

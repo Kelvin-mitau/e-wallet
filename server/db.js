@@ -22,10 +22,24 @@ const transactionSchema = new mongoose.Schema({
     type:{type:String,required:true},
     amount:{type:Number,required:true},
     description:{type:String,required:true},
+    method:{type:String},
+    recipientEmail:{type:String},
 },{timestamps:true})
+
+const notificationSubSchema = new mongoose.Schema({
+    notification:{type:String},
+    read:{type:Boolean,default:false}
+})
+
+const notificationSchema = new mongoose.Schema({
+    user:{type:String,required:true,ref:"User"},
+    notification:notificationSubSchema
+},{timestamps:true})
+
 
 const User = mongoose.model("User",userSchema);
 const Transaction = mongoose.model("Transaction",transactionSchema);
+const Notification = mongoose.model("Notification",notificationSchema);
 
-export {User,Transaction};
+export {User,Transaction,Notification};
 
