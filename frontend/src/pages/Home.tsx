@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { io } from 'socket.io-client';
 
 interface Transaction {
     _id: string;
@@ -46,6 +47,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
 
 const App: React.FC = () => {
     const navigate = useNavigate()
+    const socket = io(BASE_URL)
 
     const [userData, setUserData] = useState<User>({
         _id: "tfvcwiwboeeion",
@@ -124,9 +126,12 @@ const App: React.FC = () => {
             });
             if (!response.ok) {
                 const errorData = await response.json();
-
                 throw new Error(errorData.message || 'Failed to send money.');
             }
+
+            socket.emit("send-notification-to-user", { userID: sessionStorage.getItem("userID") })
+            socket.emit("send-notification-to-user", { userID: (await response.json()).recipientID })
+
             setSendMessage('Money sent successfully!');
             setSendRecipient('');
             setSendAmount('');
@@ -139,7 +144,6 @@ const App: React.FC = () => {
             setSendLoading(false);
         }
     };
-
 
     const handleTopUp = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -162,6 +166,7 @@ const App: React.FC = () => {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Failed to top up.');
             }
+            socket.emit("send-notification-to-user", { userID: sessionStorage.getItem("userID") })
             setTopUpMessage('Account topped up successfully!');
             setTopUpAmount('');
             setTopUpMethod('Card');

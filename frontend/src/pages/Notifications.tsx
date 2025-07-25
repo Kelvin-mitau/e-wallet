@@ -207,14 +207,12 @@ const Notifications: React.FC = () => {
             }
             setActionMessage('All notifications cleared.');
             setNotifications([]);
+
         } catch (err: any) {
             setActionMessage(`Error clearing all notifications: ${err.message}`);
             console.error('Clear all notifications error:', err);
         }
     };
-
-
-
 
     return (
         <>

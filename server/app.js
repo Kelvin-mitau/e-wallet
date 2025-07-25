@@ -5,7 +5,9 @@ import { User,Transaction, Notification } from "./db.js";
 import bcrypt from "bcrypt";
 import cors from "cors";
 import { OAuth2Client } from 'google-auth-library';
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
+import http from "http";
+import {Server} from "socket.io"
 
 dotenv.config({quiet:true})
 
@@ -18,9 +20,6 @@ app.use(express.json())
 
 const jwtSecret = process.env.JWT_SECRET;
 //Authentication
-const jwtOptions = {
-    expiresIn:"30d"
-}
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -89,7 +88,6 @@ app.post("/auth/signin", async (req,res) => {
              return
         }
         const token = jwt.sign({id:user._id},jwtSecret)
-        console.log(token)
         res.status(200).json({
                 token,
                 userID:user._id
@@ -112,7 +110,7 @@ app.post("/auth/signup", async (req,res) => {
         res.status(200).send()
     } catch (error) {
         console.error(error)
-        res.status(500).send("Oops...Something went wrong")
+        res.status(500).send({message:"Oops...Something went wrong"})
     }
 })
 //To get user details
@@ -227,7 +225,6 @@ app.get("/unread_notifications_count/:id",async (req,res) => {
             user:userID,
             "notification.read":false
         })
-        console.log(notifications)
 
         res.send({count:notifications.length})
     } catch (error) {
@@ -420,7 +417,7 @@ app.post("/transactions/send/:id", async (req,res) => {
             return;
         }
 
-        if (recipient.email == req.body.recipientEmail){
+        if (sender.email == req.body.recipientEmail){
             res.status(400).send({message:"You can't send money to yourself"})
             return;
         }
@@ -465,7 +462,9 @@ app.post("/transactions/send/:id", async (req,res) => {
             recipient.balance += req.body.amount;
             recipient.save()
         })
-         res.status(200).send()
+         res.status(200).send({
+            recipientID:recipient._id
+         })
 
     } catch (error) {
         console.error(error)
@@ -473,7 +472,30 @@ app.post("/transactions/send/:id", async (req,res) => {
     }
 })
 
+
+//Web sockets
+const httpServer = http.createServer(app)
+const io = new Server(httpServer,{
+    cors:{
+        origin: '*', 
+    methods: ['GET', 'POST']
+    }
+})
+io.on('connection',(socket) => {
+    socket.on("join-room",userID => {
+        socket.join(userID); 
+        //console.log(`${socket.id} joined room: ${userID}`);
+        //socket.emit('joinedRoom', userID);
+    })
+    socket.on("send-notification-to-user",(data) => {
+        //console.log(data)
+        socket
+        .to(data.userID)
+        .emit("receive-notification",{count : 1})
+    }) 
+})
+
 const port = process.env.PORT;
-app.listen(port,() => {
+httpServer.listen(port,() => {
     console.log("server running on pport: " + port) 
 })

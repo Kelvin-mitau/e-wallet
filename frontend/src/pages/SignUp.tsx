@@ -28,7 +28,7 @@ const SignUp = () => {
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:8085/auth/sigup', {
+            const response = await fetch('http://localhost:8085/auth/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -201,7 +201,7 @@ const SignUp = () => {
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                             ) : (
-                                'Sign in'
+                                'Sign Up'
                             )}
                         </button>
                     </div>
